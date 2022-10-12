@@ -1,5 +1,8 @@
 # MAKE BORIS LATE
 
+- develop period: 12h
+- stack: `javacscript`, `react`, `framer-motion`, `styled-components`
+
 ![](https://velog.velcdn.com/images/kt5680608/post/09362112-b313-4df4-b5e4-463cc8ba6370/image.gif)
 
 Boris is on his way to work.
@@ -11,4 +14,4 @@ _you can see your record on console._
 
 ## updates
 
-- ranking sysyem update soon
+- ranking system update soon

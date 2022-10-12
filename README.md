@@ -1,5 +1,7 @@
 # MAKE BORIS LATE
 
+site: [https://make-boris-late.netlify.app/](https://make-boris-late.netlify.app/)
+
 - develop period: 12h
 - stack: `javacscript`, `react`, `framer-motion`, `styled-components`
 

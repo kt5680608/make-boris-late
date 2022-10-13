@@ -3,7 +3,7 @@
 site: [https://make-boris-late.netlify.app/](https://make-boris-late.netlify.app/)
 
 - develop period: 12h
-- stack: `javacscript`, `react`, `framer-motion`, `styled-components`
+- stack: `javacscript`, `react`, `framer-motion`, `styled-components`, `hoondesign`
 
 ![](https://velog.velcdn.com/images/kt5680608/post/09362112-b313-4df4-b5e4-463cc8ba6370/image.gif)
 

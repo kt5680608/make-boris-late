@@ -210,7 +210,7 @@ function App() {
           {isOver ? (
             <ModalTitle>Boris Late {score} seconds!</ModalTitle>
           ) : (
-            <ModalTitle>MAKE BORIS LATE!</ModalTitle>
+            <ModalTitle>Make Boris Late!</ModalTitle>
           )}
           <BorisWalking
             src={isOver ? "/boris-running.gif" : "/boris-walking.gif"}
@@ -242,7 +242,7 @@ function App() {
               <ModalBodyDescription>
                 New Record!
                 <br />
-                {newRecord}
+                {newRecord} seconds
                 <br />
                 {!isRegister ? (
                   <>

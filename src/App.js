@@ -70,7 +70,7 @@ function App() {
 
   const getUser = async () => {
     const data = await getDocs(winnerCollectionRef);
-    console.log(data);
+
     setWinner(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
   };
 
@@ -78,11 +78,13 @@ function App() {
     const winnerRef = doc(db, "user", "winner");
 
     const isGit = newGit?.split("/");
+    console.log(isGit[2]);
     if (newRecord > currentRecord && isGit[2] === "github.com") {
+      console.log("here");
       await updateDoc(winnerRef, { git: newGit, record: newRecord });
       getUser();
       setIsRegister(true);
-    } else {
+    } else if (newRecord > currentRecord && !isGit[2] === "github.com") {
       setPlaceHolder("not github url");
       setNewGit("");
     }
@@ -124,7 +126,6 @@ function App() {
     if (isOver) {
       const endTime = new Date().getTime();
       const diffTime = Math.floor(((endTime - startTime) / 1000) % 60);
-      console.log("YOUR RECORD : ", diffTime + " seconds");
       setScore(diffTime);
       borisAnimationSequence();
       setStartTrigger(false);
@@ -139,7 +140,7 @@ function App() {
       setTimeout(() => {
         setIsOver(false);
         setIsRegister(false);
-      }, 3000);
+      }, 3600);
     }
   }, [isRegister]);
 

@@ -138,7 +138,11 @@ function App() {
         }}
         animate={borisWalkingAnimation}
       />
-      <Modal id="hoondesign-modal" modalCloseButton={false}>
+      <Modal
+        id="hoondesign-modal"
+        modalCloseButton={false}
+        preventOverlayClick={true}
+      >
         <ModalBodyContainer>
           {isOver ? (
             <ModalTitle>Boris Late {score} seconds!</ModalTitle>

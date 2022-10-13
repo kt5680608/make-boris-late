@@ -8,6 +8,8 @@ import {
   ModalBodyContainer,
   ModalBodyDescription,
   HighlightSpan,
+  Button,
+  Input,
 } from "./style";
 
 import Lottie from "lottie-react";
@@ -20,17 +22,31 @@ import { Modal } from "hoondesign";
 
 import { useInView } from "react-intersection-observer";
 
+import { collection, doc, getDocs, updateDoc } from "@firebase/firestore";
+
+import { db } from "./firebase-config";
+
 function App() {
+  const [winner, setWinner] = useState();
+  const [newGit, setNewGit] = useState("");
+  const [newRecord, setNewRecord] = useState(0);
+  const [currentGit, setCurrentGit] = useState("");
+  const [currentUser, setCurrentUser] = useState("");
+  const [currentRecord, setCurrentRecord] = useState(0);
+  const [isRegister, setIsRegister] = useState(false);
+  const winnerCollectionRef = collection(db, "user");
   const [startTrigger, setStartTrigger] = useState(false);
   const [onDrag, setOnDrag] = useState(false);
   const [click, setClick] = useState(false);
   const [backgroundArray, setBackgroundArray] = useState([city1, city2, city3]);
   const [borisRef, inView] = useInView();
   const [isOver, setIsOver] = useState(false);
-  const [count, setCount] = useState(5);
+  const [count, setCount] = useState(3);
   const [startTime, setstartTime] = useState(0);
   const borisWalkingAnimation = useAnimation();
   const [score, setScore] = useState(0);
+  const [isFirst, setIsFirst] = useState(true);
+  const [placeholder, setPlaceHolder] = useState("github url");
 
   const changeBackgroundArray = () => {
     const tmp = backgroundArray[0];
@@ -52,20 +68,40 @@ function App() {
     }
   };
 
+  const getUser = async () => {
+    const data = await getDocs(winnerCollectionRef);
+    console.log(data);
+    setWinner(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+  };
+
+  const updateUser = async () => {
+    const winnerRef = doc(db, "user", "winner");
+
+    const isGit = newGit?.split("/");
+    if (newRecord > currentRecord && isGit[2] === "github.com") {
+      await updateDoc(winnerRef, { git: newGit, record: newRecord });
+      getUser();
+      setIsRegister(true);
+    } else {
+      setPlaceHolder("not github url");
+      setNewGit("");
+    }
+  };
+
   // start boris animation sequence
   useEffect(() => {
     if (!onDrag && startTrigger) {
       borisAnimationSequence();
     }
-  }, [click, onDrag, startTrigger]);
+  }, [click, onDrag, startTrigger, isOver]);
 
   useEffect(() => {
-    if (count > 0) {
+    if (count > 0 && !isFirst) {
       setTimeout(() => {
         setCount(count - 1);
       }, 1000);
     }
-    if (count === 0) {
+    if (count === 0 && !isFirst) {
       document?.getElementById("hoondesign-modal").click();
       if (startTime === 0) {
         const currentTime = new Date().getTime();
@@ -73,13 +109,12 @@ function App() {
         setStartTrigger(true);
       }
     }
-  }, [count]);
+  }, [count, isFirst]);
 
   useEffect(() => {
     if (borisRef !== null && !inView && startTrigger) {
       setIsOver(true);
       document?.getElementById("hoondesign-modal").click();
-      setCount(5);
     }
   }, [inView]);
   useEffect(() => {
@@ -94,14 +129,42 @@ function App() {
       borisAnimationSequence();
       setStartTrigger(false);
       setstartTime(0);
-
-      setTimeout(() => {
-        setIsOver(false);
-      }, 5000);
+      setNewRecord(diffTime);
     }
   }, [isOver]);
 
   useEffect(() => {
+    if (isRegister) {
+      setCount(3);
+      setTimeout(() => {
+        setIsOver(false);
+        setIsRegister(false);
+      }, 3000);
+    }
+  }, [isRegister]);
+
+  useEffect(() => {
+    setCurrentRecord(
+      winner?.map((item) => {
+        return item.record;
+      })
+    );
+    setCurrentGit(
+      winner?.map((item) => {
+        return item.git;
+      })
+    );
+    setCurrentUser(
+      winner?.map((item) => {
+        const user = item.git.split("/");
+
+        return user[3];
+      })
+    );
+  }, [winner]);
+
+  useEffect(() => {
+    getUser();
     console.log(`
     +-+-+-+-+  
     |M|A|K|E|  
@@ -153,17 +216,59 @@ function App() {
             src={isOver ? "/boris-running.gif" : "/boris-walking.gif"}
           />
           {isOver ? (
-            <ModalBodyDescription>
-              Boris doesn't want to go work either!
-              <br />
-              Make him more late!
-              <br />
-              {count !== 0 ? (
-                <HighlightSpan>Started in {count} seconds</HighlightSpan>
-              ) : (
-                <HighlightSpan>Make Boris late!</HighlightSpan>
-              )}
-            </ModalBodyDescription>
+            currentRecord > newRecord ? (
+              <ModalBodyDescription>
+                Wanna see 1st in the world?
+                <br />
+                He makes Boris late {currentRecord} seconds
+                <br />
+                <a href={currentGit}>{currentUser}</a>
+                <br />
+                {count !== 0 ? (
+                  <HighlightSpan padding="12px 0 0 0" marginTop="24px">
+                    Starts in {count} seconds
+                  </HighlightSpan>
+                ) : (
+                  <Button
+                    onClick={() => {
+                      setIsRegister(true);
+                    }}
+                  >
+                    play again
+                  </Button>
+                )}
+              </ModalBodyDescription>
+            ) : (
+              <ModalBodyDescription>
+                New Record!
+                <br />
+                {newRecord}
+                <br />
+                {!isRegister ? (
+                  <>
+                    <Input
+                      type="text"
+                      placeholder={placeholder}
+                      onChange={(e) => {
+                        setNewGit(e.target.value);
+                      }}
+                      value={newGit}
+                    />
+                    <Button
+                      onClick={() => {
+                        updateUser();
+                      }}
+                    >
+                      submit
+                    </Button>
+                  </>
+                ) : (
+                  <HighlightSpan padding="12px 0 0 0" marginTop="24px">
+                    Starts in {count} seconds
+                  </HighlightSpan>
+                )}
+              </ModalBodyDescription>
+            )
           ) : (
             <ModalBodyDescription>
               Boris is on his way to work. <br />
@@ -172,10 +277,18 @@ function App() {
               <br />
               Drag him back to his original position.
               <br />
-              {count !== 0 ? (
-                <HighlightSpan>Started in {count} seconds</HighlightSpan>
+              {isFirst ? (
+                <Button
+                  onClick={() => {
+                    setIsFirst(false);
+                  }}
+                >
+                  let's start
+                </Button>
               ) : (
-                <HighlightSpan>Make Boris late!</HighlightSpan>
+                <HighlightSpan padding="12px 0 0 0" marginTop="24px">
+                  Starts in {count} seconds
+                </HighlightSpan>
               )}
             </ModalBodyDescription>
           )}

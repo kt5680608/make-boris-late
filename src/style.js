@@ -39,11 +39,40 @@ export const ModalBodyContainer = styled.div`
 export const ModalBodyDescription = styled.p`
   margin-top: 24px;
   font-family: R-FLEX-REGULAR;
-  font-size: 20px;
+  font-size: 16px;
   text-align: center;
+  line-height: 1.4;
   word-break: keep-all;
 `;
 
 export const HighlightSpan = styled.span`
   color: red;
+  display: inline-block;
+  padding: ${(props) => props.padding && props.padding};
+  margin-top: ${(props) => props.marginTop && props.marginTop};
+`;
+
+export const Button = styled.button`
+  margin-top: 24px;
+  padding: 12px;
+  background-color: black;
+  color: white;
+  border: none;
+  border-radius: 24px;
+  font-family: R-FLEX-REGULAR;
+  font-size: 16px;
+  text-align: center;
+  word-break: keep-all;
+  cursor: pointer;
+`;
+
+export const Input = styled.input`
+  font-size: 16px;
+  padding: 12px;
+  border: ${(props) =>
+    props.placeholder === "github url"
+      ? "lightgray 0.5px solid"
+      : "red 0.5px solid"};
+  margin-right: 24px;
+  border-radius: 24px;
 `;

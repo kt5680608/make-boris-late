@@ -27,36 +27,37 @@ function App() {
   const [backgroundArray, setBackgroundArray] = useState([city1, city2, city3]);
   const [borisRef, inView] = useInView();
   const [isOver, setIsOver] = useState(false);
-
-  const [count, setCount] = useState(3);
-  const [seconds, setSeconds] = useState(0);
+  const [count, setCount] = useState(5);
+  const [startTime, setstartTime] = useState(0);
+  const borisWalkingAnimation = useAnimation();
+  const [score, setScore] = useState(0);
 
   const changeBackgroundArray = () => {
     const tmp = backgroundArray[0];
     setBackgroundArray(backgroundArray.splice(0, 1));
     setBackgroundArray([...backgroundArray, tmp]);
   };
-  const borisWalkingAnimation = useAnimation();
 
-  const borisAnimationSequence = async () => {
-    if (startTrigger) {
-      await borisWalkingAnimation.start({
+  const borisAnimationSequence = () => {
+    if (startTrigger && !isOver) {
+      borisWalkingAnimation.start({
         x: "3000px",
         transition: { duration: 6 },
       });
+    } else if (startTrigger && isOver) {
+      borisWalkingAnimation.start({
+        x: "0px",
+        transition: { duration: 5 },
+      });
     }
   };
+
+  // start boris animation sequence
   useEffect(() => {
     if (!onDrag && startTrigger) {
       borisAnimationSequence();
     }
   }, [click, onDrag, startTrigger]);
-
-  useEffect(() => {
-    setTimeout(() => {
-      setStartTrigger(true);
-    }, 3000);
-  }, []);
 
   useEffect(() => {
     if (count > 0) {
@@ -66,9 +67,10 @@ function App() {
     }
     if (count === 0) {
       document?.getElementById("hoondesign-modal").click();
-      if (seconds === 0) {
-        const startTime = new Date().getTime();
-        setSeconds(startTime);
+      if (startTime === 0) {
+        const currentTime = new Date().getTime();
+        setstartTime(currentTime);
+        setStartTrigger(true);
       }
     }
   }, [count]);
@@ -76,6 +78,8 @@ function App() {
   useEffect(() => {
     if (borisRef !== null && !inView && startTrigger) {
       setIsOver(true);
+      document?.getElementById("hoondesign-modal").click();
+      setCount(5);
     }
   }, [inView]);
   useEffect(() => {
@@ -84,8 +88,16 @@ function App() {
   useEffect(() => {
     if (isOver) {
       const endTime = new Date().getTime();
-      const diffSeconds = Math.floor(((endTime - seconds) / 1000) % 60);
-      console.log("YOUR RECORD : ", diffSeconds + " seconds");
+      const diffTime = Math.floor(((endTime - startTime) / 1000) % 60);
+      console.log("YOUR RECORD : ", diffTime + " seconds");
+      setScore(diffTime);
+      borisAnimationSequence();
+      setStartTrigger(false);
+      setstartTime(0);
+
+      setTimeout(() => {
+        setIsOver(false);
+      }, 5000);
     }
   }, [isOver]);
 
@@ -121,36 +133,48 @@ function App() {
         onDragEnd={() => {
           setOnDrag(false);
         }}
-        onClick={(e) => {
+        onClick={() => {
           setClick(!click);
         }}
         animate={borisWalkingAnimation}
       />
-      <Modal
-        id="hoondesign-modal"
-        modalCloseButton={false}
-        onClick={(e) => {
-          e.preventDefault();
-        }}
-      >
+      <Modal id="hoondesign-modal" modalCloseButton={false}>
         <ModalBodyContainer>
-          <ModalTitle>MAKE BORIS LATE!</ModalTitle>
+          {isOver ? (
+            <ModalTitle>Boris Late {score} seconds!</ModalTitle>
+          ) : (
+            <ModalTitle>MAKE BORIS LATE!</ModalTitle>
+          )}
           <BorisWalking
-            src={onDrag ? "/boris-running.gif" : "/boris-walking.gif"}
+            src={isOver ? "/boris-running.gif" : "/boris-walking.gif"}
           />
-          <ModalBodyDescription>
-            Boris is on his way to work. <br />
-            We need to stop Boris from going to work. <br />
-            Maybe Boris doesn't want to go to work either.
-            <br />
-            Drag him back to his original position.
-            <br />
-            {count !== 0 ? (
-              <HighlightSpan>Started in {count} seconds</HighlightSpan>
-            ) : (
-              <HighlightSpan>Make Boris late!</HighlightSpan>
-            )}
-          </ModalBodyDescription>
+          {isOver ? (
+            <ModalBodyDescription>
+              Boris doesn't want to go work either!
+              <br />
+              Make him more late!
+              <br />
+              {count !== 0 ? (
+                <HighlightSpan>Started in {count} seconds</HighlightSpan>
+              ) : (
+                <HighlightSpan>Make Boris late!</HighlightSpan>
+              )}
+            </ModalBodyDescription>
+          ) : (
+            <ModalBodyDescription>
+              Boris is on his way to work. <br />
+              We need to stop Boris from going to work. <br />
+              Maybe Boris doesn't want to go to work either.
+              <br />
+              Drag him back to his original position.
+              <br />
+              {count !== 0 ? (
+                <HighlightSpan>Started in {count} seconds</HighlightSpan>
+              ) : (
+                <HighlightSpan>Make Boris late!</HighlightSpan>
+              )}
+            </ModalBodyDescription>
+          )}
         </ModalBodyContainer>
       </Modal>
     </MainContainer>

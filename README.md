@@ -16,4 +16,5 @@ _you can see your record on console._
 
 ## updates
 
+- ~~auto restart updated~~
 - ranking system update soon

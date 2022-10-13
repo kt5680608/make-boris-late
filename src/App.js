@@ -78,9 +78,8 @@ function App() {
     const winnerRef = doc(db, "user", "winner");
 
     const isGit = newGit?.split("/");
-    console.log(isGit[2]);
+
     if (newRecord > currentRecord && isGit[2] === "github.com") {
-      console.log("here");
       await updateDoc(winnerRef, { git: newGit, record: newRecord });
       getUser();
       setIsRegister(true);

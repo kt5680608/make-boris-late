@@ -76,3 +76,5 @@ export const Input = styled.input`
   margin-right: 24px;
   border-radius: 24px;
 `;
+
+export const MyDiv = styled.div``;

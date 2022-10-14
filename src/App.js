@@ -22,19 +22,29 @@ import { Modal } from "hoondesign";
 
 import { useInView } from "react-intersection-observer";
 
-import { collection, doc, getDocs, updateDoc } from "@firebase/firestore";
+import {
+  collection,
+  doc,
+  addDoc,
+  getDocs,
+  updateDoc,
+} from "@firebase/firestore";
 
 import { db } from "./firebase-config";
 
 function App() {
-  const [winner, setWinner] = useState();
+  const borisWalkingAnimation = useAnimation();
+  const winnerCollectionRef = collection(db, "user");
+
+  // player's data
   const [newGit, setNewGit] = useState("");
   const [newRecord, setNewRecord] = useState(0);
-  const [currentGit, setCurrentGit] = useState("");
-  const [currentUser, setCurrentUser] = useState("");
-  const [currentRecord, setCurrentRecord] = useState(0);
+
+  // winner's data
+  const [winnerUsername, setWinnerUsername] = useState("");
+  const [winnerRecord, setWinnerRecord] = useState(0);
+
   const [isRegister, setIsRegister] = useState(false);
-  const winnerCollectionRef = collection(db, "user");
   const [startTrigger, setStartTrigger] = useState(false);
   const [onDrag, setOnDrag] = useState(false);
   const [click, setClick] = useState(false);
@@ -42,18 +52,18 @@ function App() {
   const [borisRef, inView] = useInView();
   const [isOver, setIsOver] = useState(false);
   const [count, setCount] = useState(3);
-  const [startTime, setstartTime] = useState(0);
-  const borisWalkingAnimation = useAnimation();
+  const [startTime, setStartTime] = useState(0);
   const [score, setScore] = useState(0);
   const [isFirst, setIsFirst] = useState(true);
-  const [placeholder, setPlaceHolder] = useState("github url");
 
+  // backgrounds loop
   const changeBackgroundArray = () => {
     const tmp = backgroundArray[0];
     setBackgroundArray(backgroundArray.splice(0, 1));
     setBackgroundArray([...backgroundArray, tmp]);
   };
 
+  // how Boris move
   const borisAnimationSequence = () => {
     if (startTrigger && !isOver) {
       borisWalkingAnimation.start({
@@ -68,25 +78,31 @@ function App() {
     }
   };
 
+  // get user from firebase
   const getUser = async () => {
     const data = await getDocs(winnerCollectionRef);
-
-    setWinner(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+    data.docs.filter((doc) => {
+      if (doc.id === "winner") {
+        setWinnerUsername(doc.data().git);
+        setWinnerRecord(doc.data().record);
+      }
+    });
   };
 
+  // set user to firebase
+  const createUser = async () => {
+    await addDoc(winnerCollectionRef, { git: newGit, record: newRecord });
+  };
+
+  // set winner to firebase
   const updateUser = async () => {
     const winnerRef = doc(db, "user", "winner");
-
-    const isGit = newGit?.split("/");
-
-    if (newRecord > currentRecord && isGit[2] === "github.com") {
+    if (newRecord > winnerRecord) {
       await updateDoc(winnerRef, { git: newGit, record: newRecord });
       getUser();
       setIsRegister(true);
-    } else if (newRecord > currentRecord && !isGit[2] === "github.com") {
-      setPlaceHolder("not github url");
-      setNewGit("");
     }
+    createUser();
   };
 
   // start boris animation sequence
@@ -106,7 +122,7 @@ function App() {
       document?.getElementById("hoondesign-modal").click();
       if (startTime === 0) {
         const currentTime = new Date().getTime();
-        setstartTime(currentTime);
+        setStartTime(currentTime);
         setStartTrigger(true);
       }
     }
@@ -128,7 +144,7 @@ function App() {
       setScore(diffTime);
       borisAnimationSequence();
       setStartTrigger(false);
-      setstartTime(0);
+      setStartTime(0);
       setNewRecord(diffTime);
     }
   }, [isOver]);
@@ -144,26 +160,6 @@ function App() {
   }, [isRegister]);
 
   useEffect(() => {
-    setCurrentRecord(
-      winner?.map((item) => {
-        return item.record;
-      })
-    );
-    setCurrentGit(
-      winner?.map((item) => {
-        return item.git;
-      })
-    );
-    setCurrentUser(
-      winner?.map((item) => {
-        const user = item.git.split("/");
-
-        return user[3];
-      })
-    );
-  }, [winner]);
-
-  useEffect(() => {
     getUser();
     console.log(`
     +-+-+-+-+  
@@ -175,7 +171,6 @@ function App() {
     +-+-+-+-+                  
 `);
   }, []);
-
   return (
     <MainContainer id="main-container">
       <Background>
@@ -215,14 +210,17 @@ function App() {
           <BorisWalking
             src={isOver ? "/boris-running.gif" : "/boris-walking.gif"}
           />
+
           {isOver ? (
-            currentRecord > newRecord ? (
+            winnerRecord > newRecord ? (
               <ModalBodyDescription>
                 Wanna see 1st in the world?
                 <br />
-                He makes Boris late {currentRecord} seconds
+                He makes Boris late {winnerRecord} seconds
                 <br />
-                <a href={currentGit}>{currentUser}</a>
+                <a href={`https://github.com/${winnerUsername}`}>
+                  {winnerUsername}
+                </a>
                 <br />
                 {count !== 0 ? (
                   <HighlightSpan padding="12px 0 0 0" marginTop="24px">
@@ -248,7 +246,7 @@ function App() {
                   <>
                     <Input
                       type="text"
-                      placeholder={placeholder}
+                      placeholder=" your github ID"
                       onChange={(e) => {
                         setNewGit(e.target.value);
                       }}

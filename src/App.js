@@ -255,6 +255,7 @@ function App() {
                     <Button
                       onClick={() => {
                         updateUser();
+                        setIsRegister(true);
                       }}
                     >
                       submit

@@ -7,6 +7,13 @@ export const MainContainer = styled.div`
   overflow: hidden;
 `;
 
+export const MainContainerNotDesktop = styled(MainContainer)`
+  display: flex;
+  width: 100vw;
+  justify-content: center;
+  align-items: center;
+`;
+
 export const BorisWalking = styled(motion.img)`
   width: 240px;
   object-fit: contain;
@@ -88,4 +95,9 @@ export const Congratulation = styled.img`
   width: 100%;
   left: 0;
   top: 80%;
+`;
+
+export const ErrorMessage = styled.h2`
+  font-family: R-FLEX-BLACK;
+  font-size: 48px;
 `;

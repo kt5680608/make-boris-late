@@ -11,7 +11,11 @@ import {
   Button,
   Input,
   Congratulation,
+  ErrorMessage,
+  MainContainerNotDesktop,
 } from "./style";
+
+import { useMediaQuery } from "react-responsive";
 
 import Lottie from "lottie-react";
 
@@ -56,6 +60,10 @@ function App() {
   const [startTime, setStartTime] = useState(0);
   const [score, setScore] = useState(0);
   const [isFirst, setIsFirst] = useState(true);
+
+  const isPc = useMediaQuery({
+    query: "(min-width:1024px)",
+  });
 
   // backgrounds loop
   const changeBackgroundArray = () => {
@@ -132,11 +140,11 @@ function App() {
   useEffect(() => {
     if (borisRef !== null && !inView && startTrigger) {
       setIsOver(true);
-      document?.getElementById("hoondesign-modal").click();
+      document?.getElementById("hoondesign-modal")?.click();
     }
   }, [inView]);
   useEffect(() => {
-    document?.getElementById("hoondesign-modal").click();
+    document?.getElementById("hoondesign-modal")?.click();
   }, []);
   useEffect(() => {
     if (isOver) {
@@ -172,7 +180,7 @@ function App() {
     +-+-+-+-+                  
 `);
   }, []);
-  return (
+  return isPc ? (
     <MainContainer id="main-container">
       <Background>
         <Lottie
@@ -296,6 +304,10 @@ function App() {
         </ModalBodyContainer>
       </Modal>
     </MainContainer>
+  ) : (
+    <MainContainerNotDesktop>
+      <ErrorMessage>Desktop only</ErrorMessage>
+    </MainContainerNotDesktop>
   );
 }
 

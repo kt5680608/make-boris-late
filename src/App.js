@@ -10,6 +10,7 @@ import {
   HighlightSpan,
   Button,
   Input,
+  Congratulation,
 } from "./style";
 
 import Lottie from "lottie-react";
@@ -238,12 +239,13 @@ function App() {
               </ModalBodyDescription>
             ) : (
               <ModalBodyDescription>
+                <Congratulation src="congratulation.gif" />
                 New Record!
                 <br />
                 {newRecord} seconds
                 <br />
                 {!isRegister ? (
-                  <>
+                  <div>
                     <Input
                       type="text"
                       placeholder=" your github ID"
@@ -260,7 +262,7 @@ function App() {
                     >
                       submit
                     </Button>
-                  </>
+                  </div>
                 ) : (
                   <HighlightSpan padding="12px 0 0 0" marginTop="24px">
                     Starts in {count} seconds

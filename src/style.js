@@ -28,6 +28,7 @@ export const ModalTitle = styled.h1`
 `;
 
 export const ModalBodyContainer = styled.div`
+  position: relative;
   width: 100%;
   height: 100%;
   display: flex;
@@ -43,6 +44,10 @@ export const ModalBodyDescription = styled.p`
   text-align: center;
   line-height: 1.4;
   word-break: keep-all;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 `;
 
 export const HighlightSpan = styled.span`
@@ -63,18 +68,24 @@ export const Button = styled.button`
   font-size: 16px;
   text-align: center;
   word-break: keep-all;
+  position: relative;
+  z-index: 988;
   cursor: pointer;
 `;
 
 export const Input = styled.input`
   font-size: 16px;
   padding: 12px;
-  border: ${(props) =>
-    props.placeholder === "github url"
-      ? "lightgray 0.5px solid"
-      : "red 0.5px solid"};
+  border: lightgray 0.5px solid;
   margin-right: 24px;
   border-radius: 24px;
+  position: relative;
+  z-index: 988;
 `;
 
-export const MyDiv = styled.div``;
+export const Congratulation = styled.img`
+  position: absolute;
+  width: 100%;
+  left: 0;
+  top: 80%;
+`;
